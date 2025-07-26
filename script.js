@@ -269,6 +269,10 @@ document.addEventListener('DOMContentLoaded', () => {
             type_searchSources: typeof prd._searchSources,
             type_searchMetadata: typeof prd._searchMetadata
         });
+        
+        // 더 자세한 디버깅
+        console.log('🔍 모든 _ 프로퍼티:', Object.keys(prd).filter(key => key.startsWith('_')));
+        console.log('🔍 전체 PRD 객체:', prd);
 
         sections.forEach(section => {
             console.log(`🔍 섹션 처리: ${section.title}`, section.content);
