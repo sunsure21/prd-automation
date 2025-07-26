@@ -1,0 +1,45 @@
+{
+  "name": "prd-automation-tool",
+  "version": "1.0.0",
+  "description": "최신 LLM과 실시간 검색을 활용한 차세대 PRD 자동 생성 도구",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo 'Static files ready for deployment'",
+    "test": "echo 'No tests specified'",
+    "vercel-build": "echo 'Build step for Vercel'"
+  },
+  "keywords": [
+    "prd",
+    "ai",
+    "automation",
+    "llm",
+    "gpt-4",
+    "claude",
+    "realtime-search",
+    "material-design",
+    "vercel"
+  ],
+  "author": "sunny_dev",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sunny_dev/prd-automation.git"
+  },
+  "homepage": "https://prd-automation.vercel.app",
+  "bugs": {
+    "url": "https://github.com/sunny_dev/prd-automation/issues"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^7.11.3",
+    "axios": "^1.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
