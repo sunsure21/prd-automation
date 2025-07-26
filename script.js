@@ -1683,8 +1683,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('PRD 복원 실패:', error);
         }
     }, 100); // 약간의 지연으로 UI 요소가 완전히 로드된 후 실행
-}); 
-
+    
     // 페이지 초기화 시 동적 날짜 설정
     function updateDynamicDates() {
         const dateInfo = getDateInfo();
@@ -1703,5 +1702,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log(`페이지 날짜 정보 업데이트: ${dateInfo.currentDate}, 검색 범위: ${dateInfo.period}`);
     }
+});
 
  
