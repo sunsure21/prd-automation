@@ -1190,7 +1190,24 @@ ${jsonStructure}`;
         });
 
         const prd = JSON.parse(response.data.choices[0].message.content);
-        console.log('GPT-4.1 백업 PRD 파싱 성공');
+        
+        // 검색 출처 정보 추가 (Claude와 동일하게)
+        if (analysis._searchMetadata) {
+            prd._searchSources = {
+                generated_at: analysis._searchMetadata.search_timestamp,
+                total_sources: analysis._searchMetadata.total_sources,
+                domains_searched: analysis._searchMetadata.search_domains,
+                key_sources: analysis._searchMetadata.sources.slice(0, 5).map(source => ({
+                    title: source.title,
+                    url: source.url,
+                    domain: source.domain
+                }))
+            };
+            console.log(`GPT-4.1 백업 PRD 파싱 성공 (검색 출처 ${analysis._searchMetadata.total_sources}개 포함)`);
+        } else {
+            console.log('GPT-4.1 백업 PRD 파싱 성공 (검색 없음)');
+        }
+        
         return { prd, questions: [] };
     } catch (error) {
         console.error('GPT-4.1 백업 PRD API 호출 오류:', error.response?.data || error.message);
