@@ -133,7 +133,21 @@ function cleanAndParseJSON(text) {
     } catch (error) {
         console.error('JSON 정제 및 파싱 실패:', error.message);
         console.error('원본 텍스트 (처음 500자):', text.substring(0, 500));
-        console.error('정제된 텍스트 (처음 500자):', cleanedText ? cleanedText.substring(0, 500) : 'undefined');
+        
+        // cleanedText가 정의되지 않은 경우를 대비
+        let debugCleanedText = 'undefined';
+        try {
+            // cleanedText 재정의 시도
+            let tempCleanedText = text.trim();
+            tempCleanedText = tempCleanedText.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+            const jsonStart = tempCleanedText.indexOf('{');
+            if (jsonStart !== -1) {
+                debugCleanedText = tempCleanedText.substring(jsonStart, Math.min(jsonStart + 500, tempCleanedText.length));
+            }
+        } catch (debugError) {
+            debugCleanedText = 'debug error: ' + debugError.message;
+        }
+        console.error('정제된 텍스트 (처음 500자):', debugCleanedText);
         
         // 다시 시도: 더 간단한 파싱
         try {
@@ -675,12 +689,13 @@ async function analyzeIdeaWithGPT41(inputText, apiKey) {
 
 당신은 AI 제품 기획 전문가입니다. 다음 내용을 분석하여 PRD 작성에 필요한 핵심 정보를 추출해주세요.
 
-**최신 AI 기술 반영 필수사항 (검색 결과 기반 동적 반영):**
-- 아래 검색 결과에서 발견된 최신 AI 모델들을 우선 사용하세요 (검색된 최신 GPT, Claude, Gemini, Llama 모델)
-- 구형 모델명 절대 금지: GPT-4, Claude-3, Gemini-3, GPT-3.5 등 구버전
-- 검색된 최신 AI 프레임워크와 버전 정보 활용
-- 검색된 최신 배포 플랫폼과 클라우드 서비스 반영
-- 반드시 검색 결과에서 나온 실제 최신 정보를 기반으로 작성하세요
+**🚨 검색 결과 기반 최신 AI 기술 반영 필수사항:**
+- 아래 검색 결과에서 발견된 공식 릴리즈 정보의 최신 모델명만 사용하세요
+- 검색 결과에 명시적으로 언급된 모델 버전만 사용 (예: 검색에서 "GPT-4o", "Claude 3.5 Sonnet", "Gemini 1.5 Pro" 확인된 경우에만 사용)
+- 검색 결과에 없는 모델명은 절대 사용 금지 (예: "GPT-5", "Claude 4", "Gemini 3" 등 존재하지 않는 모델)
+- 공식 사이트(OpenAI, Anthropic, Google)에서 확인된 정보만 신뢰
+- 불확실한 모델명보다는 검색에서 확인된 안정적인 모델명 사용
+- 프레임워크와 배포 도구도 검색 결과에서 확인된 최신 버전만 언급
 
 현재 날짜: ${dateInfo.koreaTime}
 검색 범위: 최근 3개월 (${dateInfo.searchPeriod})
@@ -949,12 +964,13 @@ async function generatePRDWithClaude(analysis, apiKey) {
 5. 각 문자열은 따옴표로 적절히 감싸주세요
 6. JSON 구조를 정확히 따라주세요
 
-**최신 AI 기술 반영 필수사항 (검색 결과 기반 동적 반영):**
-- 분석 결과에 포함된 검색 데이터에서 발견된 최신 AI 모델들을 우선 사용하세요
-- 구형 모델명 절대 금지: GPT-4, Claude-3, Gemini-3, GPT-3.5 등 구버전
-- 검색된 최신 AI 프레임워크와 버전 정보 활용
-- 검색된 최신 배포 플랫폼과 클라우드 서비스 반영
-- 반드시 분석 결과의 검색 메타데이터에서 나온 실제 최신 정보를 기반으로 PRD를 작성하세요
+**🚨 검색 결과 기반 최신 AI 기술 반영 필수사항:**
+- 분석 결과에 포함된 검색 메타데이터에서 발견된 공식 모델명만 사용하세요  
+- 검색 도메인(OpenAI, Anthropic, Google 공식 사이트)에서 확인된 모델 버전만 언급
+- 검색 결과에 없는 가상의 모델명 절대 금지 (예: "Gemini 3", "Claude 4", "GPT-5" 등)
+- 불확실한 정보보다는 검색에서 실제 확인된 안정적인 기술 스택 우선
+- 기술스택 섹션에서는 검색 결과로 검증된 최신 정보만 포함
+- 추측이나 예상 버전 번호 사용 금지, 검색된 실제 정보만 활용
 
 **AI 에이전트 관련 프로젝트의 경우 다음 가이드라인을 기술적 접근 방법에 반드시 반영하세요:**
 
