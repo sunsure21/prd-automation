@@ -261,6 +261,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // { id: 'metrics', title: '성공 지표', content: prd.metrics },
         ];
 
+        // 검색 출처 디버깅
+        console.log('🔍 PRD 전체 객체 키들:', Object.keys(prd));
+        console.log('🔍 검색 출처 상세:', {
+            _searchSources: prd._searchSources,
+            _searchMetadata: prd._searchMetadata,
+            type_searchSources: typeof prd._searchSources,
+            type_searchMetadata: typeof prd._searchMetadata
+        });
+
         sections.forEach(section => {
             console.log(`🔍 섹션 처리: ${section.title}`, section.content);
             
