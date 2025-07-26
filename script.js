@@ -1693,7 +1693,26 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 페이지 초기화 시 동적 날짜 설정
     function updateDynamicDates() {
-        const dateInfo = getDateInfo();
+        // 날짜 정보를 함수 내부에서 직접 생성 (스코프 문제 해결)
+        const now = new Date();
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        
+        const currentDate = now.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        const startMonth = threeMonthsAgo.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long'
+        });
+        
+        const dateInfo = {
+            currentDate,
+            period: `최근 3개월 (${startMonth} ~ 현재)`
+        };
 
         // 히어로 섹션 하이라이트 업데이트
         const searchHighlight = document.getElementById('search-highlight');
@@ -1707,7 +1726,7 @@ document.addEventListener('DOMContentLoaded', () => {
             searchInfo.textContent = `AI 관련 내용 입력 시 GitHub, Hugging Face 등에서 ${dateInfo.period} 최신 정보를 자동 검색합니다`;
         }
 
-        console.log(`페이지 날짜 정보 업데이트: ${dateInfo.currentDate}, 검색 범위: ${dateInfo.period}`);
+        console.log(`✅ 페이지 날짜 정보 업데이트 완료: ${dateInfo.currentDate}, 검색 범위: ${dateInfo.period}`);
     }
     
     // 동적 날짜 업데이트 실행 (함수 정의 후)
