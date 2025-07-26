@@ -1656,8 +1656,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 페이지 초기화 ---
-    // 동적 날짜 업데이트
-    updateDynamicDates();
     
     // 저장된 PRD 복원 시도
     setTimeout(() => {
@@ -1702,6 +1700,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log(`페이지 날짜 정보 업데이트: ${dateInfo.currentDate}, 검색 범위: ${dateInfo.period}`);
     }
+    
+    // 동적 날짜 업데이트 실행 (함수 정의 후)
+    updateDynamicDates();
 });
 
  
