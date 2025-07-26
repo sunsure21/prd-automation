@@ -1,7 +1,9 @@
-require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
+// Vercel 환경에서는 dotenv 설정 불필요 (환경변수 자동 로딩)
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
+}
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-// 임시 조치: .env 파일에서 키를 읽어오지 못하는 지속적인 문제 해결을 위해 키를 직접 설정합니다.
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -133,21 +135,6 @@ function cleanAndParseJSON(text) {
     } catch (error) {
         console.error('JSON 정제 및 파싱 실패:', error.message);
         console.error('원본 텍스트 (처음 500자):', text.substring(0, 500));
-        
-        // cleanedText가 정의되지 않은 경우를 대비
-        let debugCleanedText = 'undefined';
-        try {
-            // cleanedText 재정의 시도
-            let tempCleanedText = text.trim();
-            tempCleanedText = tempCleanedText.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
-            const jsonStart = tempCleanedText.indexOf('{');
-            if (jsonStart !== -1) {
-                debugCleanedText = tempCleanedText.substring(jsonStart, Math.min(jsonStart + 500, tempCleanedText.length));
-            }
-        } catch (debugError) {
-            debugCleanedText = 'debug error: ' + debugError.message;
-        }
-        console.error('정제된 텍스트 (처음 500자):', debugCleanedText);
         
         // 다시 시도: 더 간단한 파싱
         try {

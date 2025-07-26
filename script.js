@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'implementationDetails', title: '구현 세부사항', content: prd.implementationDetails },
             { id: 'features', title: '핵심 기능', content: prd.features },
             // 검색 출처 정보 (있는 경우에만)
-            { id: 'searchSources', title: '🔍 실시간 검색 출처', content: prd._searchSources },
+            { id: 'searchSources', title: '🔍 실시간 검색 출처', content: prd._searchSources || prd._searchMetadata },
             // 성공 지표는 업무용에서 제외
             // { id: 'metrics', title: '성공 지표', content: prd.metrics },
         ];
@@ -368,34 +368,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createSearchSourcesSection(searchSources) {
+        console.log('🔍 createSearchSourcesSection 호출됨, 데이터:', searchSources);
+        
         const container = document.createElement('div');
         container.className = 'search-sources-container';
+        
+        // 데이터 구조 정규화 (두 가지 형태 모두 지원)
+        const timestamp = searchSources.generated_at || searchSources.search_timestamp;
+        const domains = searchSources.domains_searched || searchSources.search_domains || [];
+        const sources = searchSources.key_sources || searchSources.sources || [];
+        
+        console.log('📊 정규화된 데이터:', { timestamp, domains, sources });
         
         // 검색 정보 헤더
         const header = document.createElement('div');
         header.className = 'search-info-header';
         header.innerHTML = `
             <div class="search-stats">
-                <span class="search-stat">📊 총 ${searchSources.total_sources}개 소스</span>
-                <span class="search-stat">🌐 ${searchSources.domains_searched?.length || 0}개 도메인</span>
-                <span class="search-stat">⏰ ${new Date(searchSources.generated_at).toLocaleString('ko-KR')}</span>
+                <span class="search-stat">📊 총 ${searchSources.total_sources || 0}개 소스</span>
+                <span class="search-stat">🌐 ${domains.length}개 도메인</span>
+                <span class="search-stat">⏰ ${timestamp ? new Date(timestamp).toLocaleString('ko-KR') : '시간 정보 없음'}</span>
             </div>
         `;
         container.appendChild(header);
         
         // 도메인 태그
-        if (searchSources.domains_searched?.length > 0) {
+        if (domains.length > 0) {
             const domainsDiv = document.createElement('div');
             domainsDiv.className = 'search-domains';
             domainsDiv.innerHTML = '<strong>검색된 도메인:</strong> ' + 
-                searchSources.domains_searched.map(domain => 
+                domains.map(domain => 
                     `<span class="domain-tag">${domain}</span>`
                 ).join(' ');
             container.appendChild(domainsDiv);
         }
         
         // 주요 검색 출처
-        if (searchSources.key_sources?.length > 0) {
+        if (sources.length > 0) {
             const sourcesDiv = document.createElement('div');
             sourcesDiv.className = 'search-sources-list';
             sourcesDiv.innerHTML = '<h4>🔗 주요 검색 출처:</h4>';
@@ -403,16 +412,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const sourcesList = document.createElement('ol');
             sourcesList.className = 'sources-list';
             
-            searchSources.key_sources.forEach(source => {
+            sources.slice(0, 10).forEach((source, index) => {
+                console.log(`📄 출처 ${index + 1}:`, source);
+                
                 const li = document.createElement('li');
                 li.className = 'source-item';
+                
+                // 다양한 데이터 구조 지원
+                const url = source.url || source.link || '#';
+                const title = source.title || source.name || `검색 결과 ${index + 1}`;
+                const domain = source.domain || (url !== '#' ? new URL(url).hostname : '알 수 없음');
+                
                 li.innerHTML = `
                     <div class="source-header">
-                        <a href="${source.url}" target="_blank" rel="noopener noreferrer" class="source-link">
-                            <span class="source-title">${source.title}</span>
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" class="source-link">
+                            <span class="source-title">${title}</span>
                             <span class="external-link-icon">🔗</span>
                         </a>
-                        <span class="source-domain">${source.domain}</span>
+                        <span class="source-domain">${domain}</span>
                     </div>
                 `;
                 sourcesList.appendChild(li);

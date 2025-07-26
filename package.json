@@ -1,5 +1,5 @@
 {
-  "name": "prd-automation-tool",
+  "name": "prd-ai-generator",
   "version": "1.0.0",
   "description": "최신 LLM과 실시간 검색을 활용한 차세대 PRD 자동 생성 도구",
   "main": "server.js",
