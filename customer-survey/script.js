@@ -209,21 +209,31 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = collectFormData();
             console.log('📋 폼 데이터 수집 완료:', formData);
             
-            // PRD 생성 (기존 API 사용)
-            console.log('🤖 AI PRD 생성 시작...');
-            const prdResult = await generatePRD(formData);
-            console.log('✅ PRD 생성 완료');
+            // 📤 고객 설문 데이터만 서버로 전송 (즉시 처리)
+            console.log('📤 설문 데이터 제출 중...');
+            const response = await fetch('/api/submit-consultation-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    clientInfo: formData,
+                    timestamp: new Date().toISOString()
+                })
+            });
             
-            // 이메일 발송
-            console.log('📧 이메일 발송 시작...');
-            await sendConsultationEmail(formData, prdResult);
-            console.log('✅ 이메일 발송 완료');
+            if (!response.ok) {
+                throw new Error(`설문 제출 실패: ${response.statusText}`);
+            }
             
-            // 성공 처리
+            const result = await response.json();
+            console.log('✅ 설문 제출 완료:', result);
+            
+            // 🎉 즉시 성공 처리 (PRD 생성은 백그라운드에서 진행)
             showSuccessMessage();
             
         } catch (error) {
-            console.error('❌ 설문 처리 오류:', error);
+            console.error('❌ 설문 제출 오류:', error);
             showErrorMessage(error.message);
         } finally {
             setSubmitLoading(false);
@@ -280,94 +290,20 @@ document.addEventListener('DOMContentLoaded', function() {
         return data;
     }
     
+    // 🚫 더 이상 사용하지 않는 함수들 (서버에서 백그라운드 처리)
+    /*
     async function generatePRD(formData) {
-        // 기존 PRD AI 에이전트 API 사용
-        const ideaText = createIdeaText(formData);
-        
-        console.log('🔗 API 호출 경로:', '/api/generate-prd');
-        console.log('📋 전송 데이터:', { idea: ideaText, clientInfo: formData });
-        
-        const response = await fetch('/api/generate-prd', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                idea: ideaText,
-                clientInfo: {
-                    name: formData.contactName,
-                    email: formData.contactEmail,
-                    company: formData.companyName,
-                    team: formData.teamName,
-                    jobTitle: formData.jobTitle
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`PRD 생성 실패: ${response.statusText}`);
-        }
-        
-        return await response.json();
+        // 백그라운드에서 서버가 처리
     }
     
     function createIdeaText(formData) {
-        // 설문 데이터를 PRD 생성용 텍스트로 변환
-        let ideaText = `비즈니스 아이디어: ${formData.businessIdea}\n\n`;
-        ideaText += `타겟 사용자: ${formData.targetUsers}\n\n`;
-        
-        if (formData.keyFeatures) {
-            ideaText += `핵심 기능: ${formData.keyFeatures}\n\n`;
-        }
-        
-        if (formData.budgetTimeline) {
-            ideaText += `예산 및 일정: ${formData.budgetTimeline}\n\n`;
-        }
-        
-        if (formData.additionalRequests) {
-            ideaText += `추가 요청사항: ${formData.additionalRequests}`;
-        }
-        
-        return ideaText;
+        // 서버에서 처리
     }
     
     async function sendConsultationEmail(formData, prdResult) {
-        const emailData = {
-            type: 'consultation_request',
-            clientInfo: {
-                name: formData.contactName,
-                email: formData.contactEmail,
-                phone: formData.contactPhone,
-                company: formData.companyName,
-                team: formData.teamName || '미입력',
-                jobTitle: formData.jobTitle || '미입력',
-                consultationTime: formData.consultationTime,
-                additionalRequests: formData.additionalRequests || '없음'
-            },
-            businessInfo: {
-                idea: formData.businessIdea,
-                targetUsers: formData.targetUsers,
-                keyFeatures: formData.keyFeatures || '미입력',
-                budgetTimeline: formData.budgetTimeline || '미입력'
-            },
-            prdResult: prdResult,
-            submittedAt: new Date().toISOString()
-        };
-        
-        const response = await fetch('/api/send-consultation-email', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(emailData)
-        });
-        
-        if (!response.ok) {
-            throw new Error(`이메일 발송 실패: ${response.statusText}`);
-        }
-        
-        return await response.json();
+        // 백그라운드에서 서버가 처리
     }
+    */
     
     function setSubmitLoading(loading) {
         submitBtn.disabled = loading;

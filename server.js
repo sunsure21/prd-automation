@@ -1389,6 +1389,160 @@ app.post('/api/send-consultation-email', async (req, res) => {
     }
 });
 
+// 🚀 새로운 상담 신청 API (즉시 응답 + 백그라운드 처리)
+app.post('/api/submit-consultation-request', async (req, res) => {
+    try {
+        const { clientInfo, timestamp } = req.body;
+        
+        console.log('📋 상담 신청 접수:', {
+            company: clientInfo.company,
+            name: clientInfo.name,
+            email: clientInfo.email,
+            timestamp: timestamp
+        });
+        
+        // 🎉 즉시 고객에게 성공 응답
+        res.json({ 
+            success: true, 
+            message: '상담 신청이 접수되었습니다. 곧 담당자가 연락드리겠습니다.',
+            timestamp: timestamp
+        });
+        
+        // 🔄 백그라운드에서 PRD 생성 및 이메일 발송 (비동기 처리)
+        console.log('🔄 백그라운드 PRD 생성 및 이메일 발송 시작...');
+        processConsultationRequestBackground(clientInfo, timestamp);
+        
+    } catch (error) {
+        console.error('❌ 상담 신청 접수 오류:', error);
+        res.status(500).json({ 
+            error: '상담 신청 접수 중 오류가 발생했습니다.',
+            details: error.message 
+        });
+    }
+});
+
+// 결과 확인 API 엔드포인트
+app.get('/api/consultation-result/:id', (req, res) => {
+    try {
+        const resultId = req.params.id;
+        
+        if (!global.consultationResults || !global.consultationResults.has(resultId)) {
+            return res.status(404).json({ 
+                error: '결과를 찾을 수 없습니다.',
+                message: '결과가 존재하지 않거나 만료되었을 수 있습니다.'
+            });
+        }
+        
+        const result = global.consultationResults.get(resultId);
+        
+        // 24시간 후 만료 체크
+        const resultTime = new Date(result.timestamp);
+        const now = new Date();
+        const hoursDiff = (now - resultTime) / (1000 * 60 * 60);
+        
+        if (hoursDiff > 24) {
+            global.consultationResults.delete(resultId);
+            return res.status(410).json({ 
+                error: '결과가 만료되었습니다.',
+                message: '결과는 24시간 후 자동으로 삭제됩니다.'
+            });
+        }
+        
+        console.log('📋 결과 조회:', {
+            id: resultId,
+            company: result.clientInfo.company,
+            name: result.clientInfo.name
+        });
+        
+        res.json({
+            success: true,
+            data: {
+                clientInfo: result.clientInfo,
+                businessInfo: result.ideaText,
+                prdResult: result.prdResult,
+                timestamp: result.timestamp
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ 결과 조회 오류:', error);
+        res.status(500).json({ 
+            error: '결과 조회 중 오류가 발생했습니다.',
+            details: error.message 
+        });
+    }
+});
+
+// 백그라운드 PRD 생성 및 이메일 발송 처리
+async function processConsultationRequestBackground(clientInfo, timestamp) {
+    try {
+        console.log('🤖 백그라운드: PRD 생성 시작...');
+        
+        // 비즈니스 아이디어를 PRD 생성용 텍스트로 변환
+        const ideaText = createIdeaTextFromSurvey(clientInfo);
+        
+        // PRD 생성 (기존 generatePRD 함수 사용)
+        const prdResult = await generatePRD(ideaText);
+        console.log('✅ 백그라운드: PRD 생성 완료');
+        
+        // 고유 결과 ID 생성 (타임스탬프 + 랜덤)
+        const resultId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
+        // 결과를 메모리에 저장 (실제로는 DB 사용 권장)
+        if (!global.consultationResults) {
+            global.consultationResults = new Map();
+        }
+        global.consultationResults.set(resultId, {
+            clientInfo,
+            ideaText,
+            prdResult,
+            timestamp: new Date().toISOString()
+        });
+        
+        // 결과 확인 링크 생성
+        const resultViewUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/customer-survey/result.html?id=${resultId}`;
+        
+        // 상담 요청 이메일 생성 및 발송 (결과 링크 포함)
+        console.log('📧 백그라운드: 상담 요청 이메일 발송 시작...');
+        const emailHtml = generateConsultationEmail(clientInfo, ideaText, prdResult, resultViewUrl);
+        
+        await sendGmailEmail({
+            to: 'sunnyhan@wonderslab.kr',
+            subject: `[AI 솔루션 상담 신청] ${clientInfo.company} - ${clientInfo.name}님`,
+            html: emailHtml,
+            clientInfo: clientInfo
+        });
+        
+        console.log('✅ 백그라운드: 상담 요청 이메일 발송 완료');
+        console.log('🎯 백그라운드 처리 모든 작업 완료!');
+        
+    } catch (error) {
+        console.error('❌ 백그라운드 처리 오류:', error);
+        // 백그라운드 처리 실패는 고객에게 영향 없음 (이미 성공 응답 전송)
+        // 대신 관리자에게 별도 알림 필요할 수 있음
+    }
+}
+
+// 설문 데이터를 PRD 생성용 텍스트로 변환
+function createIdeaTextFromSurvey(clientInfo) {
+    let ideaText = `비즈니스 아이디어: ${clientInfo.businessIdea}\n\n`;
+    ideaText += `타겟 사용자: ${clientInfo.targetUsers}\n\n`;
+    
+    if (clientInfo.keyFeatures) {
+        ideaText += `핵심 기능: ${clientInfo.keyFeatures}\n\n`;
+    }
+    
+    if (clientInfo.budgetTimeline) {
+        ideaText += `예산 및 일정: ${clientInfo.budgetTimeline}\n\n`;
+    }
+    
+    if (clientInfo.additionalRequests) {
+        ideaText += `추가 요청사항: ${clientInfo.additionalRequests}`;
+    }
+    
+    return ideaText;
+}
+
 // Gmail SMTP를 통한 이메일 발송 함수
 async function sendGmailEmail({ to, subject, html, clientInfo }) {
     // 간단한 HTTP 기반 이메일 발송 (Gmail API 또는 SMTP)
@@ -1419,7 +1573,7 @@ async function sendGmailEmail({ to, subject, html, clientInfo }) {
     return { success: true, messageId: 'mock-' + Date.now() };
 }
 
-function generateConsultationEmail(clientInfo, businessInfo, prdResult) {
+function generateConsultationEmail(clientInfo, businessInfo, prdResult, resultViewUrl) {
     const consultationTimes = clientInfo.consultationTime.join(', ');
     
     return `
@@ -1442,8 +1596,14 @@ function generateConsultationEmail(clientInfo, businessInfo, prdResult) {
     <body>
         <div class="container">
             <div class="header">
-                <h1>🤖 AI PRD 컨설팅 상담 요청</h1>
+                <h1>🤖 AI 솔루션 컨설팅 상담 요청</h1>
                 <p>새로운 고객님의 상담 요청이 접수되었습니다.</p>
+                <div style="margin: 15px 0; padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                    <p style="margin: 0; font-weight: bold; color: #1e40af;">📋 상세 결과 확인:</p>
+                    <a href="${resultViewUrl}" style="color: #3b82f6; text-decoration: none; font-weight: bold;">
+                        ${resultViewUrl}
+                    </a>
+                </div>
             </div>
             
             <div class="section">
