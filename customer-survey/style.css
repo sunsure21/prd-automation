@@ -527,4 +527,70 @@ textarea {
     .checkbox-item {
         padding: 10px 12px;
     }
+}
+
+/* Contact Quick Section (Mobile Optimized) */
+.contact-quick {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 32px;
+    margin: 48px 0;
+    text-align: center;
+}
+
+.contact-quick h3 {
+    color: #1a202c;
+    margin-bottom: 24px;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.contact-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 24px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #2d3748;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.contact-item:hover {
+    border-color: #4299e1;
+    background: #f7fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(66, 153, 225, 0.15);
+    text-decoration: none;
+    color: #2d3748;
+}
+
+.contact-item .material-icons {
+    font-size: 1.4rem;
+    color: #4299e1;
+}
+
+@media (max-width: 768px) {
+    .contact-info {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .contact-item {
+        padding: 14px 20px;
+        font-size: 0.95rem;
+    }
 } 
