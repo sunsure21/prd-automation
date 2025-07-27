@@ -1581,8 +1581,9 @@ function createIdeaTextFromSurvey(clientInfo) {
 
 // Gmail SMTP를 통한 이메일 발송 함수
 async function sendGmailEmail({ to, subject, html, clientInfo }) {
-    // 간단한 HTTP 기반 이메일 발송 (Gmail API 또는 SMTP)
-    // 실제 구현 시에는 Nodemailer나 Gmail API 사용
+    const nodemailer = require('nodemailer');
+    const fs = require('fs');
+    const path = require('path');
     
     const emailData = {
         to: to,
@@ -1595,11 +1596,9 @@ async function sendGmailEmail({ to, subject, html, clientInfo }) {
         clientName: clientInfo.name
     };
     
-    // 📧 이메일 내용을 파일로 저장 (즉시 확인 가능)
+    // 📧 이메일 내용을 파일로 저장 (백업용)
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `email-${timestamp}-${clientInfo.company}-${clientInfo.name}.html`;
-    const fs = require('fs');
-    const path = require('path');
     
     try {
         const emailsDir = path.join(__dirname, 'generated-emails');
@@ -1620,28 +1619,70 @@ async function sendGmailEmail({ to, subject, html, clientInfo }) {
         console.log('📧 이메일:', clientInfo.email);
         console.log('📧 연락처:', clientInfo.phone);
         console.log('📧 ======================================');
-        console.log('📧 📁 이메일 내용이 저장되었습니다:');
-        console.log('📧 📍 위치:', filepath);
-        console.log('📧 🌐 브라우저에서 열어보세요!');
+        console.log('📧 📁 백업 파일 저장:', filepath);
         console.log('📧 ======================================');
         
     } catch (fileError) {
         console.error('❌ 이메일 파일 저장 실패:', fileError);
     }
     
-    // 로깅 (실제 발송 대신)
-    console.log('📧 Gmail 발송 준비 완료:', {
-        to: emailData.to,
-        subject: emailData.subject,
-        from: emailData.from,
-        replyTo: emailData.replyTo,
-        contentLength: html.length,
-        savedAs: filename
-    });
-    
-    // TODO: 실제 Gmail API 또는 Nodemailer 구현
-    // 현재는 성공으로 처리
-    return { success: true, messageId: 'mock-' + Date.now(), savedFile: filename };
+    // 🚀 실제 Gmail SMTP 발송
+    try {
+        // Gmail SMTP 설정 확인
+        const gmailUser = process.env.GMAIL_USER || 'wyou@wonderslab.kr';
+        const gmailPassword = process.env.GMAIL_APP_PASSWORD;
+        
+        if (!gmailPassword) {
+            console.log('⚠️ Gmail 앱 비밀번호가 설정되지 않았습니다.');
+            console.log('💡 환경변수 GMAIL_APP_PASSWORD를 설정하면 실제 이메일이 발송됩니다.');
+            console.log('📁 현재는 파일로만 저장되었습니다.');
+            return { success: true, messageId: 'file-only-' + Date.now(), savedFile: filename };
+        }
+        
+        // Gmail SMTP 설정
+        const transporter = nodemailer.createTransporter({
+            service: 'gmail',
+            auth: {
+                user: gmailUser,
+                pass: gmailPassword
+            }
+        });
+        
+        // 이메일 옵션
+        const mailOptions = {
+            from: `"AI 솔루션 컨설팅" <${gmailUser}>`,
+            to: emailData.to,
+            replyTo: clientInfo.email,
+            subject: emailData.subject,
+            html: html
+        };
+        
+        console.log('📤 실제 Gmail SMTP로 이메일 발송 시작...');
+        const info = await transporter.sendMail(mailOptions);
+        
+        console.log('✅ 실제 이메일 발송 성공!');
+        console.log('📧 Message ID:', info.messageId);
+        console.log('📧 Response:', info.response);
+        console.log('📧 ======================================');
+        
+        return { 
+            success: true, 
+            messageId: info.messageId, 
+            response: info.response,
+            savedFile: filename 
+        };
+        
+    } catch (emailError) {
+        console.error('❌ Gmail SMTP 발송 실패:', emailError.message);
+        console.log('📁 파일로만 저장되었습니다. 이메일 설정을 확인해주세요.');
+        
+        return { 
+            success: false, 
+            error: emailError.message, 
+            savedFile: filename,
+            fallback: 'file-saved' 
+        };
+    }
 }
 
 function generateConsultationEmail(clientInfo, businessInfo, prdResult, resultViewUrl) {
