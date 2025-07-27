@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 제품 기획 상담 신청 | PRD 자동화 컨설팅</title>
+    <meta name="description" content="비즈니스 아이디어를 전문 PRD로 변환하는 AI 기반 컨설팅 서비스입니다. 전문가가 직접 상담해드립니다.">
+    
+    <!-- Material Design 3 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">🤖 AI PRD 컨설팅</h1>
+                <p class="tagline">전문가와 함께하는 제품 기획 상담</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="main">
+        <div class="container">
+            <!-- 히어로 섹션 -->
+            <section class="hero">
+                <h2>📋 AI 제품 기획 상담 신청</h2>
+                <p class="hero-description">
+                    비즈니스 아이디어를 <strong>전문 PRD(제품 요구사항 명세서)</strong>로 변환하는 
+                    <strong>AI 기반 컨설팅 서비스</strong>입니다.<br>
+                    설문 작성 후 <strong>전문 컨설턴트가 직접 상담</strong>해드립니다.
+                </p>
+                
+                <div class="process-steps">
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <span class="step-text">설문 작성</span>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <span class="step-text">AI PRD 생성</span>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <span class="step-text">전문가 상담</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 설문 폼 -->
+            <section class="survey-section">
+                <form id="survey-form" class="survey-form">
+                    
+                    <!-- 1. 제품/서비스 정보 -->
+                    <div class="form-section">
+                        <h3>💡 제품/서비스 정보</h3>
+                        
+                        <div class="form-group">
+                            <label for="business-idea">
+                                <span class="required">*</span> 비즈니스 아이디어 또는 해결하고 싶은 문제
+                            </label>
+                            <textarea 
+                                id="business-idea" 
+                                name="businessIdea" 
+                                required 
+                                rows="6"
+                                placeholder="예: '업무 중 반복적인 보고서 작성을 AI로 자동화하고 싶습니다. 매주 데이터를 정리하고 분석하는데 3-4시간이 소요되어 업무 효율성이 떨어지고 있습니다.'"
+                                maxlength="2000"></textarea>
+                            <span class="char-counter" data-target="business-idea">0 / 2,000자</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="target-users">
+                                <span class="required">*</span> 타겟 사용자 또는 고객층
+                            </label>
+                            <textarea 
+                                id="target-users" 
+                                name="targetUsers" 
+                                required 
+                                rows="3"
+                                placeholder="예: '중소기업 마케팅팀, 월 매출 10억 이상 제조업체 기획팀, 스타트업 CEO 등'"
+                                maxlength="500"></textarea>
+                            <span class="char-counter" data-target="target-users">0 / 500자</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="key-features">
+                                원하는 핵심 기능 (선택사항)
+                            </label>
+                            <textarea 
+                                id="key-features" 
+                                name="keyFeatures" 
+                                rows="4"
+                                placeholder="예: '데이터 자동 수집, 차트 생성, 보고서 템플릿, 이메일 자동 발송, 실시간 알림 등'"
+                                maxlength="1000"></textarea>
+                            <span class="char-counter" data-target="key-features">0 / 1,000자</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="budget-timeline">
+                                예상 예산 및 출시 일정 (선택사항)
+                            </label>
+                            <textarea 
+                                id="budget-timeline" 
+                                name="budgetTimeline" 
+                                rows="2"
+                                placeholder="예: '개발 예산 3천만원, 6개월 내 출시 목표'"
+                                maxlength="300"></textarea>
+                            <span class="char-counter" data-target="budget-timeline">0 / 300자</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. 개인정보 -->
+                    <div class="form-section">
+                        <h3>👤 연락처 정보</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contact-name">
+                                    <span class="required">*</span> 이름
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="contact-name" 
+                                    name="contactName" 
+                                    required 
+                                    placeholder="홍길동"
+                                    maxlength="50">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contact-email">
+                                    <span class="required">*</span> 이메일
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="contact-email" 
+                                    name="contactEmail" 
+                                    required 
+                                    placeholder="hong@company.com">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contact-phone">
+                                    <span class="required">*</span> 연락처
+                                </label>
+                                <input 
+                                    type="tel" 
+                                    id="contact-phone" 
+                                    name="contactPhone" 
+                                    required 
+                                    placeholder="010-1234-5678"
+                                    pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="company-name">
+                                    <span class="required">*</span> 소속 회사
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="company-name" 
+                                    name="companyName" 
+                                    required 
+                                    placeholder="㈜ABC테크"
+                                    maxlength="100">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="team-name">
+                                    소속 팀/부서
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="team-name" 
+                                    name="teamName" 
+                                    placeholder="기획팀, 마케팅팀, 개발팀 등"
+                                    maxlength="50">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="job-title">
+                                    직무/직책
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="job-title" 
+                                    name="jobTitle" 
+                                    placeholder="팀장, 기획자, PM, 대표 등"
+                                    maxlength="50">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 상담 정보 -->
+                    <div class="form-section">
+                        <h3>📞 상담 정보</h3>
+                        
+                        <div class="form-group">
+                            <label for="consultation-time">
+                                <span class="required">*</span> 상담 가능 시간대 (복수 선택 가능)
+                            </label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="consultationTime" value="평일 오전 (09:00-12:00)">
+                                    <span class="checkmark"></span>
+                                    평일 오전 (09:00-12:00)
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="consultationTime" value="평일 오후 (13:00-18:00)">
+                                    <span class="checkmark"></span>
+                                    평일 오후 (13:00-18:00)
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="consultationTime" value="평일 저녁 (18:00-21:00)">
+                                    <span class="checkmark"></span>
+                                    평일 저녁 (18:00-21:00)
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="consultationTime" value="주말 (토요일 10:00-17:00)">
+                                    <span class="checkmark"></span>
+                                    주말 (토요일 10:00-17:00)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="additional-requests">
+                                기타 요청사항 또는 문의사항
+                            </label>
+                            <textarea 
+                                id="additional-requests" 
+                                name="additionalRequests" 
+                                rows="3"
+                                placeholder="상담 시 특별히 논의하고 싶은 내용이나 요청사항이 있으시면 적어주세요."
+                                maxlength="500"></textarea>
+                            <span class="char-counter" data-target="additional-requests">0 / 500자</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. 개인정보 동의 -->
+                    <div class="form-section">
+                        <h3>🔒 개인정보 처리 동의</h3>
+                        
+                        <div class="privacy-agreement">
+                            <div class="agreement-content">
+                                <h4>개인정보 수집 및 이용 동의</h4>
+                                <div class="agreement-text">
+                                    <p><strong>1. 개인정보 수집 목적:</strong> AI PRD 컨설팅 서비스 제공, 상담 진행, 결과 회신</p>
+                                    <p><strong>2. 수집 항목:</strong> 이름, 이메일, 연락처, 소속회사, 소속팀, 직무, 비즈니스 정보</p>
+                                    <p><strong>3. 보유 기간:</strong> 상담 완료 후 1년 (법령에 따른 보관 의무 기간)</p>
+                                    <p><strong>4. 거부 권리:</strong> 개인정보 수집에 동의하지 않을 권리가 있으나, 동의하지 않을 경우 서비스 이용이 제한됩니다.</p>
+                                </div>
+                            </div>
+                            
+                            <label class="checkbox-item required-check">
+                                <input type="checkbox" id="privacy-agreement" name="privacyAgreement" required>
+                                <span class="checkmark"></span>
+                                <span class="required">*</span> 개인정보 수집 및 이용에 동의합니다.
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 제출 버튼 -->
+                    <div class="form-submit">
+                        <button type="submit" class="submit-btn" id="submit-btn">
+                            <span class="btn-text">📋 상담 신청하기</span>
+                            <span class="btn-loading" style="display: none;">
+                                <span class="spinner"></span>
+                                AI PRD 생성 중...
+                            </span>
+                        </button>
+                        
+                        <p class="submit-note">
+                            * 제출 후 AI가 자동으로 PRD를 생성하고, 1-2일 내에 전문 컨설턴트가 연락드립니다.
+                        </p>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 AI PRD 컨설팅. 전문가와 함께하는 제품 기획.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html> 

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상담 신청 완료 | AI PRD 컨설팅</title>
+    <meta name="description" content="AI PRD 컨설팅 상담 신청이 완료되었습니다. 전문 컨설턴트가 곧 연락드립니다.">
+    
+    <!-- Material Design 3 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        .thank-you-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .thank-you-card {
+            background: white;
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            animation: bounceIn 0.8s ease-out;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #38a169, #68d391);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: pulse 2s infinite;
+        }
+        
+        .success-icon::before {
+            content: "✓";
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+        }
+        
+        .thank-you-title {
+            font-size: 2.2rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .thank-you-message {
+            font-size: 1.1rem;
+            color: #5a6c7d;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+        
+        .next-steps {
+            background-color: #f7fafc;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+        
+        .next-steps h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            text-align: center;
+        }
+        
+        .step-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .step-list li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            color: #4a5568;
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 15px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        .contact-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .contact-info h4 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .contact-info p {
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(56, 161, 105, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(56, 161, 105, 0);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .thank-you-card {
+                padding: 40px 25px;
+            }
+            
+            .thank-you-title {
+                font-size: 1.8rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="thank-you-container">
+        <div class="thank-you-card">
+            <div class="success-icon"></div>
+            
+            <h1 class="thank-you-title">상담 신청이 완료되었습니다!</h1>
+            
+            <p class="thank-you-message">
+                제출해주신 정보를 바탕으로 <strong>AI가 전문 PRD를 생성</strong>하고 있습니다.<br>
+                곧 전문 컨설턴트가 <strong>맞춤형 상담</strong>을 위해 연락드릴 예정입니다.
+            </p>
+            
+            <div class="next-steps">
+                <h3>📋 진행 과정</h3>
+                <ul class="step-list">
+                    <li>
+                        <span class="step-number">1</span>
+                        <span><strong>AI PRD 생성 완료</strong> - 제출하신 내용을 바탕으로 전문 PRD가 자동 생성되었습니다.</span>
+                    </li>
+                    <li>
+                        <span class="step-number">2</span>
+                        <span><strong>내부 검토</strong> - 전문 컨설턴트가 생성된 PRD와 고객 요구사항을 상세 검토합니다.</span>
+                    </li>
+                    <li>
+                        <span class="step-number">3</span>
+                        <span><strong>개별 상담 연락</strong> - 선택하신 시간대에 맞춰 전문가가 직접 연락드립니다.</span>
+                    </li>
+                    <li>
+                        <span class="step-number">4</span>
+                        <span><strong>맞춤형 컨설팅</strong> - 프로젝트에 최적화된 전략과 실행 방안을 함께 논의합니다.</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="contact-info">
+                <h4>📞 연락 예정 시간</h4>
+                <p><strong>1-2일 내</strong> 선택하신 시간대에 전문 컨설턴트가 연락드립니다.</p>
+                <p>급하신 경우 아래 연락처로 직접 문의해주세요.</p>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="../index.html" class="btn btn-primary">
+                    <span class="material-icons">home</span>
+                    PRD AI 에이전트 체험하기
+                </a>
+                <a href="mailto:contact@company.com" class="btn btn-secondary">
+                    <span class="material-icons">email</span>
+                    직접 문의하기
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 페이지 로드 시 애니메이션
+        window.addEventListener('load', function() {
+            // 자동으로 상위 디렉토리로 돌아가는 타이머 (선택사항)
+            // setTimeout(() => {
+            //     window.location.href = '../index.html';
+            // }, 10000); // 10초 후
+        });
+        
+        // 뒤로가기 방지 (설문 중복 제출 방지)
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
+</body>
+</html> 

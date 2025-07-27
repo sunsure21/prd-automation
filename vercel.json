@@ -20,12 +20,20 @@
     {
       "src": "*.js",
       "use": "@vercel/static"
+    },
+    {
+      "src": "customer-survey/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "/server.js"
+    },
+    {
+      "src": "/customer-survey/(.*)",
+      "dest": "/customer-survey/$1"
     },
     {
       "src": "/(.*)",

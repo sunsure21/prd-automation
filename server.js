@@ -1305,6 +1305,183 @@ ${JSON.stringify(answers, null, 2)}
 }
 
 
+// --- 고객 설문 관련 API ---
+
+// 고객 설문용 PRD 생성 API
+app.post('/api/generate-prd', async (req, res) => {
+    try {
+        console.log('📋 고객 설문 PRD 생성 요청:', req.body);
+        
+        const { idea, clientInfo } = req.body;
+        
+        if (!idea || !clientInfo) {
+            return res.status(400).json({ 
+                error: '아이디어와 고객 정보가 필요합니다.' 
+            });
+        }
+        
+        // 기존 PRD 생성 로직 사용
+        const result = await generatePRD(idea);
+        
+        // 고객 정보 추가
+        result.clientInfo = clientInfo;
+        result.generatedAt = new Date().toISOString();
+        
+        console.log('✅ 고객 설문 PRD 생성 완료');
+        res.json(result);
+        
+    } catch (error) {
+        console.error('❌ 고객 설문 PRD 생성 오류:', error);
+        res.status(500).json({ 
+            error: 'PRD 생성 중 오류가 발생했습니다.',
+            details: error.message 
+        });
+    }
+});
+
+// 상담 요청 이메일 발송 API
+app.post('/api/send-consultation-email', async (req, res) => {
+    try {
+        console.log('📧 상담 요청 이메일 발송 시작');
+        
+        const { clientInfo, businessInfo, prdResult } = req.body;
+        
+        // 이메일 내용 생성
+        const emailContent = generateConsultationEmail(clientInfo, businessInfo, prdResult);
+        
+        // 여기에 실제 이메일 발송 로직 추가 (예: Nodemailer, SendGrid 등)
+        // 현재는 로깅만 수행
+        console.log('📧 발송할 이메일 내용:');
+        console.log('받는사람:', process.env.CONSULTATION_EMAIL || 'consultant@company.com');
+        console.log('제목:', `[AI PRD 컨설팅] ${clientInfo.company} ${clientInfo.name}님 상담 요청`);
+        console.log('내용 길이:', emailContent.length, '자');
+        
+        // TODO: 실제 이메일 발송 구현
+        // await sendEmail({
+        //     to: process.env.CONSULTATION_EMAIL,
+        //     subject: `[AI PRD 컨설팅] ${clientInfo.company} ${clientInfo.name}님 상담 요청`,
+        //     html: emailContent
+        // });
+        
+        console.log('✅ 상담 요청 이메일 발송 완료 (로깅)');
+        
+        res.json({ 
+            success: true, 
+            message: '상담 요청이 성공적으로 접수되었습니다.' 
+        });
+        
+    } catch (error) {
+        console.error('❌ 이메일 발송 오류:', error);
+        res.status(500).json({ 
+            error: '이메일 발송 중 오류가 발생했습니다.',
+            details: error.message 
+        });
+    }
+});
+
+function generateConsultationEmail(clientInfo, businessInfo, prdResult) {
+    const consultationTimes = clientInfo.consultationTime.join(', ');
+    
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: 'Malgun Gothic', Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px; text-align: center; }
+            .section { background: #f8f9fa; margin: 20px 0; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; }
+            .highlight { background: #e3f2fd; padding: 15px; border-radius: 6px; margin: 10px 0; }
+            table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+            th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background-color: #667eea; color: white; }
+            .prd-summary { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🤖 AI PRD 컨설팅 상담 요청</h1>
+                <p>새로운 고객님의 상담 요청이 접수되었습니다.</p>
+            </div>
+            
+            <div class="section">
+                <h2>👤 고객 정보</h2>
+                <table>
+                    <tr><th>이름</th><td>${clientInfo.name}</td></tr>
+                    <tr><th>이메일</th><td>${clientInfo.email}</td></tr>
+                    <tr><th>연락처</th><td>${clientInfo.phone}</td></tr>
+                    <tr><th>회사명</th><td>${clientInfo.company}</td></tr>
+                    <tr><th>소속팀</th><td>${clientInfo.team}</td></tr>
+                    <tr><th>직무/직책</th><td>${clientInfo.jobTitle}</td></tr>
+                    <tr><th>상담 가능 시간</th><td>${consultationTimes}</td></tr>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>💡 비즈니스 정보</h2>
+                <div class="highlight">
+                    <h3>비즈니스 아이디어</h3>
+                    <p>${businessInfo.idea}</p>
+                </div>
+                <div class="highlight">
+                    <h3>타겟 사용자</h3>
+                    <p>${businessInfo.targetUsers}</p>
+                </div>
+                <div class="highlight">
+                    <h3>핵심 기능</h3>
+                    <p>${businessInfo.keyFeatures}</p>
+                </div>
+                <div class="highlight">
+                    <h3>예산 및 일정</h3>
+                    <p>${businessInfo.budgetTimeline}</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🤖 AI 생성 PRD 요약</h2>
+                <div class="prd-summary">
+                    <h3>제품 개요</h3>
+                    <p>${prdResult.prd?.overview || 'PRD 생성 중...'}</p>
+                    
+                    <h3>문제 정의</h3>
+                    <p>${prdResult.prd?.problem || 'PRD 생성 중...'}</p>
+                    
+                    <h3>핵심 기능 (상위 3개)</h3>
+                    <ul>
+                        ${prdResult.prd?.features ? prdResult.prd.features.slice(0, 3).map(feature => 
+                            `<li><strong>${feature.name || feature.title}:</strong> ${feature.description}</li>`
+                        ).join('') : '<li>PRD 생성 중...</li>'}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📞 추가 요청사항</h2>
+                <p>${clientInfo.additionalRequests}</p>
+            </div>
+            
+            <div class="section">
+                <h2>⚡ 액션 아이템</h2>
+                <ul>
+                    <li><strong>상담 일정 조율:</strong> ${consultationTimes} 중 적절한 시간 선택</li>
+                    <li><strong>PRD 상세 검토:</strong> AI 생성 결과 분석 및 개선점 파악</li>
+                    <li><strong>맞춤형 제안:</strong> 고객 요구사항에 맞는 구체적 솔루션 준비</li>
+                    <li><strong>후속 미팅:</strong> 필요시 추가 상담 일정 계획</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; color: #666;">
+                <p>접수 시간: ${new Date().toLocaleString('ko-KR')}</p>
+                <p>시스템: AI PRD 컨설팅 자동화</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+}
+
 // --- 서버 시작 ---
 app.listen(port, () => {
     console.log(`서버가 http://localhost:${port}에서 실행 중입니다.`);
