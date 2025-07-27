@@ -196,9 +196,73 @@
             }
         }
         
+        .contact-quick {
+            margin-top: 20px;
+            background: #f0fff4;
+            border-radius: 12px;
+            border-left: 4px solid #38a169;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .contact-icon {
+            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f7fafc;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .contact-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .contact-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .contact-link {
+            color: #38a169;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            word-break: break-all;
+        }
+        
+        .contact-link:hover {
+            color: #2f855a;
+            text-decoration: underline;
+        }
+
         @media (max-width: 640px) {
             .thank-you-card {
-                padding: 40px 25px;
+                padding: 30px 20px;
             }
             
             .thank-you-title {
@@ -212,6 +276,30 @@
             .btn {
                 width: 100%;
                 justify-content: center;
+            }
+            
+            .contact-quick {
+                margin-top: 15px;
+                padding: 15px;
+            }
+            
+            .contact-item {
+                padding: 12px;
+                gap: 12px;
+            }
+            
+            .contact-icon {
+                font-size: 20px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .contact-label {
+                font-size: 0.85rem;
+            }
+            
+            .contact-link {
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -254,9 +342,21 @@
                 <h4>📞 연락 예정 시간</h4>
                 <p><strong>빠른 시일 내</strong> 선택하신 시간대에 전문 컨설턴트가 연락드립니다.</p>
                 <p>급하신 경우 아래 연락처로 직접 문의해주세요.</p>
-                <div style="margin-top: 15px; padding: 15px; background: #f0fff4; border-radius: 8px; border-left: 4px solid #38a169;">
-                    <p style="margin: 5px 0; font-weight: 500;">📧 이메일: <a href="mailto:wyou@wonderslab.kr" style="color: #38a169; text-decoration: none;">wyou@wonderslab.kr</a></p>
-                    <p style="margin: 5px 0; font-weight: 500;">💬 카카오톡: <a href="http://pf.kakao.com/_xdvxltG/chat" target="_blank" style="color: #38a169; text-decoration: none;">카카오톡 상담하기</a></p>
+                <div class="contact-quick">
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-content">
+                            <div class="contact-label">이메일 문의</div>
+                            <a href="mailto:wyou@wonderslab.kr" class="contact-link">wyou@wonderslab.kr</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">💬</div>
+                        <div class="contact-content">
+                            <div class="contact-label">카카오톡 상담</div>
+                            <a href="http://pf.kakao.com/_xdvxltG/chat" target="_blank" class="contact-link">실시간 상담하기</a>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -264,14 +364,6 @@
                 <a href="../index.html" class="btn btn-primary">
                     <span class="material-icons">home</span>
                     AI 솔루션 체험하기
-                </a>
-                <a href="mailto:wyou@wonderslab.kr" class="btn btn-secondary">
-                    <span class="material-icons">email</span>
-                    이메일 문의
-                </a>
-                <a href="http://pf.kakao.com/_xdvxltG/chat" class="btn btn-secondary" target="_blank">
-                    <span class="material-icons">chat</span>
-                    카카오톡 상담
                 </a>
             </div>
         </div>
