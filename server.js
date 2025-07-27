@@ -1350,7 +1350,7 @@ app.post('/api/send-consultation-email', async (req, res) => {
         const emailContent = generateConsultationEmail(clientInfo, businessInfo, prdResult);
         
         // 이메일 발송 설정
-        const consultationEmail = 'sunnyhan@wonderslab.kr';
+        const consultationEmail = 'wyou@wonderslab.kr';
         
         // 여기에 실제 이메일 발송 로직 추가 (예: Nodemailer, SendGrid 등)
         // 현재는 로깅만 수행
@@ -1507,7 +1507,7 @@ async function processConsultationRequestBackground(clientInfo, timestamp) {
         const emailHtml = generateConsultationEmail(clientInfo, ideaText, prdResult, resultViewUrl);
         
         await sendGmailEmail({
-            to: 'sunnyhan@wonderslab.kr',
+            to: 'wyou@wonderslab.kr',
             subject: `[AI 솔루션 상담 신청] ${clientInfo.company} - ${clientInfo.name}님`,
             html: emailHtml,
             clientInfo: clientInfo
@@ -1552,7 +1552,7 @@ async function sendGmailEmail({ to, subject, html, clientInfo }) {
         to: to,
         subject: subject,
         html: html,
-        from: 'sunnyhan@wonderslab.kr',
+        from: 'wyou@wonderslab.kr',
         replyTo: clientInfo.email, // 고객 이메일로 답장 가능하도록
         timestamp: new Date().toISOString(),
         clientCompany: clientInfo.company,
