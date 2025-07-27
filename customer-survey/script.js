@@ -24,6 +24,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // 폼 제출 이벤트
     form.addEventListener('submit', handleFormSubmit);
     
+    // 폼 구조 검증
+    const formGroups = form.querySelectorAll('.form-group');
+    const inputs = form.querySelectorAll('input, textarea, select');
+    console.log('📋 폼 구조 검증:', {
+        formGroups: formGroups.length,
+        inputs: inputs.length,
+        form: !!form
+    });
+    
+    // 누락된 form-group 찾기
+    inputs.forEach((input, index) => {
+        const formGroup = input.closest('.form-group');
+        if (!formGroup) {
+            console.warn(`⚠️ 인덱스 ${index}의 입력 요소에 .form-group이 없습니다:`, input);
+        }
+    });
+    
     console.log('✅ 고객 설문 시스템 초기화 완료');
     
     // 글자수 카운터 초기화
@@ -78,6 +95,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function validateField(field) {
         const formGroup = field.closest('.form-group');
+        if (!formGroup) {
+            console.warn('⚠️ .form-group을 찾을 수 없습니다:', field);
+            return true; // 검증할 수 없으면 통과시킴
+        }
+        
         clearFieldError(field);
         
         if (field.hasAttribute('required') && !field.value.trim()) {
@@ -107,8 +129,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function validateConsultationTime() {
         const checkboxes = form.querySelectorAll('input[name="consultationTime"]');
+        if (checkboxes.length === 0) {
+            console.warn('⚠️ consultationTime 체크박스를 찾을 수 없습니다');
+            return true;
+        }
+        
         const checked = Array.from(checkboxes).some(cb => cb.checked);
         const formGroup = checkboxes[0].closest('.form-group');
+        
+        if (!formGroup) {
+            console.warn('⚠️ consultationTime .form-group을 찾을 수 없습니다');
+            return true;
+        }
         
         if (!checked) {
             showFieldError(checkboxes[0], '상담 가능 시간대를 최소 하나 이상 선택해주세요.');
@@ -122,6 +154,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function showFieldError(field, message) {
         const formGroup = field.closest('.form-group');
+        if (!formGroup) {
+            console.warn('⚠️ .form-group을 찾을 수 없습니다:', field);
+            return;
+        }
+        
         formGroup.classList.add('error');
         formGroup.classList.remove('success');
         
@@ -140,6 +177,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function clearFieldError(field) {
         const formGroup = field.closest('.form-group');
+        if (!formGroup) {
+            console.warn('⚠️ .form-group을 찾을 수 없습니다:', field);
+            return;
+        }
+        
         formGroup.classList.remove('error');
         
         const errorMessage = formGroup.querySelector('.error-message');
@@ -206,7 +248,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 개인정보 동의 검증
         const privacyAgreement = document.getElementById('privacy-agreement');
-        if (!privacyAgreement.checked) {
+        if (!privacyAgreement) {
+            console.warn('⚠️ privacy-agreement 체크박스를 찾을 수 없습니다');
+        } else if (!privacyAgreement.checked) {
             showFieldError(privacyAgreement, '개인정보 수집 및 이용에 동의해주세요.');
             isValid = false;
         }
