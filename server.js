@@ -1491,13 +1491,26 @@ app.get('/api/consultation-result/:id', (req, res) => {
 async function processConsultationRequestBackground(clientInfo, timestamp) {
     try {
         console.log('🤖 백그라운드: PRD 생성 시작...');
+        console.log('📋 클라이언트 정보:', {
+            company: clientInfo.company,
+            name: clientInfo.name,
+            businessIdea: clientInfo.businessIdea
+        });
         
         // 비즈니스 아이디어를 PRD 생성용 텍스트로 변환
         const ideaText = createIdeaTextFromSurvey(clientInfo);
+        console.log('📝 변환된 아이디어 텍스트:', ideaText);
         
-        // PRD 생성 (기존 generatePRD 함수 사용)
-        const prdResult = await generatePRD(ideaText);
+        // PRD 생성 (기존 generatePRDWithAI 함수 사용)
+        console.log('🤖 generatePRDWithAI 함수 호출 시작...');
+        const prdResult = await generatePRDWithAI(ideaText);
         console.log('✅ 백그라운드: PRD 생성 완료');
+        console.log('📄 PRD 결과 확인:', {
+            hasResult: !!prdResult,
+            hasContent: !!prdResult?.prd,
+            contentLength: prdResult?.prd ? prdResult.prd.length : 0,
+            resultKeys: prdResult ? Object.keys(prdResult) : []
+        });
         
         // 고유 결과 ID 생성 (타임스탬프 + 랜덤)
         const resultId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -1681,19 +1694,23 @@ function generateConsultationEmail(clientInfo, businessInfo, prdResult, resultVi
                 <h2>💡 비즈니스 정보</h2>
                 <div class="highlight">
                     <h3>비즈니스 아이디어</h3>
-                    <p>${businessInfo.idea}</p>
+                    <p>${clientInfo.businessIdea}</p>
                 </div>
                 <div class="highlight">
                     <h3>타겟 사용자</h3>
-                    <p>${businessInfo.targetUsers}</p>
+                    <p>${clientInfo.targetUsers}</p>
                 </div>
                 <div class="highlight">
                     <h3>핵심 기능</h3>
-                    <p>${businessInfo.keyFeatures}</p>
+                    <p>${clientInfo.keyFeatures || '미입력'}</p>
                 </div>
                 <div class="highlight">
                     <h3>예산 및 일정</h3>
-                    <p>${businessInfo.budgetTimeline}</p>
+                    <p>${clientInfo.budgetTimeline || '미입력'}</p>
+                </div>
+                <div class="highlight">
+                    <h3>추가 요청사항</h3>
+                    <p>${clientInfo.additionalRequests || '없음'}</p>
                 </div>
             </div>
             
