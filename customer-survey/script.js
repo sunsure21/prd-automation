@@ -15,6 +15,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // 폼 검증 초기화
     initFormValidation();
     
+    // 자동 저장 기능 초기화
+    initAutoSave();
+    
+    // 저장된 데이터 복원
+    restoreFormData();
+    
     // 폼 제출 이벤트
     form.addEventListener('submit', handleFormSubmit);
     
@@ -234,6 +240,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // 기존 PRD AI 에이전트 API 사용
         const ideaText = createIdeaText(formData);
         
+        console.log('🔗 API 호출 경로:', '/api/generate-prd');
+        console.log('📋 전송 데이터:', { idea: ideaText, clientInfo: formData });
+        
         const response = await fetch('/api/generate-prd', {
             method: 'POST',
             headers: {
@@ -334,7 +343,219 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showErrorMessage(message) {
-        alert(`오류가 발생했습니다: ${message}\n\n잠시 후 다시 시도해주세요.`);
+        alert(`오류가 발생했습니다: ${message}\n\n작성하신 내용은 자동으로 저장되었습니다.\n페이지를 새로고침해도 복원됩니다.`);
+    }
+    
+    // 자동 저장 기능 초기화
+    function initAutoSave() {
+        console.log('💾 자동 저장 기능 초기화');
+        
+        // 모든 입력 필드에 자동 저장 이벤트 추가
+        const allInputs = form.querySelectorAll('input, textarea');
+        allInputs.forEach(input => {
+            input.addEventListener('input', debounce(saveFormData, 1000));
+            input.addEventListener('change', saveFormData);
+        });
+        
+        // 체크박스는 별도 처리
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', saveFormData);
+        });
+    }
+    
+    // 폼 데이터 저장
+    function saveFormData() {
+        try {
+            const formData = collectFormData();
+            localStorage.setItem('customerSurveyData', JSON.stringify({
+                data: formData,
+                timestamp: new Date().toISOString(),
+                version: '1.0'
+            }));
+            console.log('💾 폼 데이터 자동 저장 완료');
+        } catch (error) {
+            console.error('💾 자동 저장 실패:', error);
+        }
+    }
+    
+    // 저장된 데이터 복원
+    function restoreFormData() {
+        try {
+            const savedData = localStorage.getItem('customerSurveyData');
+            if (!savedData) {
+                console.log('💾 저장된 데이터 없음');
+                return;
+            }
+            
+            const { data, timestamp } = JSON.parse(savedData);
+            console.log('💾 저장된 데이터 발견:', new Date(timestamp).toLocaleString());
+            
+            // 24시간 이내 데이터만 복원
+            const saveTime = new Date(timestamp);
+            const now = new Date();
+            const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
+            
+            if (hoursDiff > 24) {
+                console.log('💾 저장된 데이터가 24시간 이상 경과하여 삭제');
+                localStorage.removeItem('customerSurveyData');
+                return;
+            }
+            
+            // 사용자에게 복원 여부 확인
+            const shouldRestore = confirm(
+                `이전에 작성하던 내용이 있습니다.\n\n` +
+                `저장 시간: ${saveTime.toLocaleString()}\n\n` +
+                `복원하시겠습니까?`
+            );
+            
+            if (shouldRestore) {
+                fillFormData(data);
+                console.log('✅ 폼 데이터 복원 완료');
+                
+                // 복원 알림
+                setTimeout(() => {
+                    showNotification('이전 작성 내용이 복원되었습니다.', 'success');
+                }, 500);
+            }
+            
+        } catch (error) {
+            console.error('💾 데이터 복원 실패:', error);
+            localStorage.removeItem('customerSurveyData');
+        }
+    }
+    
+    // 폼에 데이터 채우기
+    function fillFormData(data) {
+        // 텍스트 입력 필드
+        Object.keys(data).forEach(key => {
+            if (key === 'consultationTime') return; // 체크박스는 별도 처리
+            
+            const element = form.querySelector(`[name="${key}"]`);
+            if (element && data[key]) {
+                element.value = data[key];
+                
+                // 글자수 카운터 업데이트
+                const counter = document.querySelector(`[data-target="${element.id}"]`);
+                if (counter) {
+                    updateCharCounter(element, counter);
+                }
+            }
+        });
+        
+        // 체크박스 복원
+        if (data.consultationTime && Array.isArray(data.consultationTime)) {
+            data.consultationTime.forEach(time => {
+                const checkbox = form.querySelector(`input[name="consultationTime"][value="${time}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        }
+        
+        // 개인정보 동의 체크박스
+        if (data.privacyAgreement) {
+            const privacyCheckbox = form.querySelector('#privacy-agreement');
+            if (privacyCheckbox) {
+                privacyCheckbox.checked = true;
+            }
+        }
+    }
+    
+    // 디바운스 함수 (너무 자주 저장되지 않도록)
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // 알림 표시 함수
+    function showNotification(message, type = 'info') {
+        // 기존 알림 제거
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        // 새 알림 생성
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span>${message}</span>
+                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        
+        // 스타일 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+                max-width: 400px;
+            }
+            .notification-success { border-left: 4px solid #38a169; }
+            .notification-error { border-left: 4px solid #e53e3e; }
+            .notification-info { border-left: 4px solid #4299e1; }
+            .notification-content {
+                padding: 16px 20px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+            }
+            .notification-close {
+                background: none;
+                border: none;
+                font-size: 18px;
+                cursor: pointer;
+                color: #666;
+                padding: 0;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 문서에 추가
+        document.body.appendChild(notification);
+        
+        // 5초 후 자동 제거
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+    
+    // 성공 시 저장된 데이터 삭제
+    function showSuccessMessage() {
+        // 저장된 데이터 삭제
+        localStorage.removeItem('customerSurveyData');
+        console.log('💾 성공 후 저장된 데이터 삭제');
+        
+        // 성공 페이지로 리다이렉트
+        window.location.href = 'thank-you.html';
     }
 });
 
