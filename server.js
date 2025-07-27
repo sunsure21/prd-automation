@@ -1410,7 +1410,21 @@ app.post('/api/submit-consultation-request', async (req, res) => {
         
         // 🔄 백그라운드에서 PRD 생성 및 이메일 발송 (비동기 처리)
         console.log('🔄 백그라운드 PRD 생성 및 이메일 발송 시작...');
-        processConsultationRequestBackground(clientInfo, timestamp);
+        
+        // 🚨 백그라운드 처리를 비동기로 실행하되 에러는 캐치
+        setImmediate(async () => {
+            try {
+                await processConsultationRequestBackground(clientInfo, timestamp);
+            } catch (bgError) {
+                console.error('💥 백그라운드 처리 중 치명적 오류:', bgError);
+                console.error('📋 실패한 고객 정보:', {
+                    company: clientInfo.company,
+                    name: clientInfo.name,
+                    email: clientInfo.email,
+                    timestamp: timestamp
+                });
+            }
+        });
         
     } catch (error) {
         console.error('❌ 상담 신청 접수 오류:', error);
@@ -1518,6 +1532,15 @@ async function processConsultationRequestBackground(clientInfo, timestamp) {
         
     } catch (error) {
         console.error('❌ 백그라운드 처리 오류:', error);
+        console.error('❌ 오류 상세:', {
+            message: error.message,
+            stack: error.stack,
+            clientInfo: {
+                company: clientInfo.company,
+                name: clientInfo.name,
+                email: clientInfo.email
+            }
+        });
         // 백그라운드 처리 실패는 고객에게 영향 없음 (이미 성공 응답 전송)
         // 대신 관리자에게 별도 알림 필요할 수 있음
     }
@@ -1559,18 +1582,53 @@ async function sendGmailEmail({ to, subject, html, clientInfo }) {
         clientName: clientInfo.name
     };
     
+    // 📧 이메일 내용을 파일로 저장 (즉시 확인 가능)
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `email-${timestamp}-${clientInfo.company}-${clientInfo.name}.html`;
+    const fs = require('fs');
+    const path = require('path');
+    
+    try {
+        const emailsDir = path.join(__dirname, 'generated-emails');
+        if (!fs.existsSync(emailsDir)) {
+            fs.mkdirSync(emailsDir, { recursive: true });
+        }
+        
+        const filepath = path.join(emailsDir, filename);
+        fs.writeFileSync(filepath, html, 'utf8');
+        
+        console.log('📧 ======================================');
+        console.log('📧 🎯 상담 신청 접수 완료!');
+        console.log('📧 ======================================');
+        console.log('📧 받는 사람:', emailData.to);
+        console.log('📧 제목:', emailData.subject);
+        console.log('📧 회사:', clientInfo.company);
+        console.log('📧 이름:', clientInfo.name);
+        console.log('📧 이메일:', clientInfo.email);
+        console.log('📧 연락처:', clientInfo.phone);
+        console.log('📧 ======================================');
+        console.log('📧 📁 이메일 내용이 저장되었습니다:');
+        console.log('📧 📍 위치:', filepath);
+        console.log('📧 🌐 브라우저에서 열어보세요!');
+        console.log('📧 ======================================');
+        
+    } catch (fileError) {
+        console.error('❌ 이메일 파일 저장 실패:', fileError);
+    }
+    
     // 로깅 (실제 발송 대신)
     console.log('📧 Gmail 발송 준비 완료:', {
         to: emailData.to,
         subject: emailData.subject,
         from: emailData.from,
         replyTo: emailData.replyTo,
-        contentLength: html.length
+        contentLength: html.length,
+        savedAs: filename
     });
     
     // TODO: 실제 Gmail API 또는 Nodemailer 구현
     // 현재는 성공으로 처리
-    return { success: true, messageId: 'mock-' + Date.now() };
+    return { success: true, messageId: 'mock-' + Date.now(), savedFile: filename };
 }
 
 function generateConsultationEmail(clientInfo, businessInfo, prdResult, resultViewUrl) {
